@@ -7,25 +7,22 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "user".
+ * This is the model class for table "city".
  *
  * @property int $id
- * @property string $fio
- * @property string $email
- * @property string|null $phone
+ * @property string $name
  * @property int $date_create
- * @property string $password
  *
  * @property Review[] $reviews
  */
-class User extends ActiveRecord
+class City extends ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName(): string
     {
-        return 'user';
+        return 'city';
     }
 
     /**
@@ -34,10 +31,9 @@ class User extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['fio', 'email', 'date_create', 'password'], 'required'],
+            [['name', 'date_create'], 'required'],
             [['date_create'], 'integer'],
-            [['fio', 'email', 'phone', 'password'], 'string', 'max' => 128],
-            [['email'], 'unique'],
+            [['name'], 'string', 'max' => 128],
         ];
     }
 
@@ -48,11 +44,8 @@ class User extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'fio' => 'Fio',
-            'email' => 'Email',
-            'phone' => 'Phone',
+            'name' => 'Name',
             'date_create' => 'Date Create',
-            'password' => 'Password',
         ];
     }
 
@@ -63,6 +56,6 @@ class User extends ActiveRecord
      */
     public function getReviews(): ActiveQuery
     {
-        return $this->hasMany(Review::class, ['id_author' => 'id']);
+        return $this->hasMany(Review::class, ['id_city' => 'id']);
     }
 }
