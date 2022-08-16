@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\base\Exception;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
@@ -16,12 +17,14 @@ use yii\web\IdentityInterface;
  * @property string|null $phone
  * @property int $date_create
  * @property string $password
+ * @property string $auth_key
+ * @property string|null $password_reset_token
+ * @property string|null $verification_token
  *
  * @property Review[] $reviews
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-
     /**
      * {@inheritdoc}
      */
@@ -50,22 +53,12 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             'id' => 'ID',
-            'fio' => 'Fio',
+            'fio' => 'Full name',
             'email' => 'Email',
-            'phone' => 'Phone',
-            'date_create' => 'Date Create',
+            'phone' => 'Phone number',
+            'date_create' => 'Date of creation',
             'password' => 'Password',
         ];
-    }
-
-    /**
-     * Gets username (email).
-     *
-     * @return string username
-     */
-    public function getUsername(): string
-    {
-        return Yii::$app->user->identity->email;
     }
 
     /**
@@ -87,6 +80,17 @@ class User extends ActiveRecord implements IdentityInterface
     public static function findIdentity($id): User|IdentityInterface|null
     {
         return static::findOne($id);
+    }
+
+    /**
+     * Finds user by verification email token
+     *
+     * @param string $token verify email token
+     * @return User|null
+     */
+    public static function findByVerificationToken(string $token): User|null
+    {
+        return static::findOne(['verification_token' => $token]);
     }
 
     /**
@@ -112,14 +116,16 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getAuthKey()
     {
+        return $this->auth_key;
     }
 
     /**
      * @param string $authKey
      * @return bool if auth key is valid for current user
      */
-    public function validateAuthKey($authKey)
+    public function validateAuthKey($authKey): bool
     {
+        return $this->getAuthKey() === $authKey;
     }
 
     /**
@@ -131,6 +137,52 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $hash = $this->password;
 
-        return Yii::$app->getSecurity()->validatePassword($password, $hash);
+        return Yii::$app->security->validatePassword($password, $hash);
+    }
+
+    /**
+     * Generates password hash from password and sets it to the model
+     *
+     * @param string $password
+     * @throws Exception
+     */
+    public function setPassword(string $password)
+    {
+        $this->password = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    /**
+     * Generates "remember me" authentication key
+     * @throws Exception
+     */
+    public function generateAuthKey()
+    {
+        $this->auth_key = Yii::$app->security->generateRandomString();
+    }
+
+    /**
+     * Generates new password reset token
+     * @throws Exception
+     */
+    public function generatePasswordResetToken()
+    {
+        $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
+    }
+
+    /**
+     * Generates new token for email verification
+     * @throws Exception
+     */
+    public function generateEmailVerificationToken()
+    {
+        $this->verification_token = Yii::$app->security->generateRandomString() . '_' . time();
+    }
+
+    /**
+     * Removes password reset token
+     */
+    public function removePasswordResetToken()
+    {
+        $this->password_reset_token = null;
     }
 }
