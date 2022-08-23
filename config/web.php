@@ -12,6 +12,9 @@ $config = [
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
+        'session' => [
+            'timeout' => 60*60*2,
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'IKyjmZaF4tuN-x7cTPMJhud-8PVHutCh',
@@ -53,6 +56,7 @@ $config = [
         */
     ],
     'params' => $params,
+    'defaultRoute' => 'review/index',
 ];
 
 if (YII_ENV_DEV) {
