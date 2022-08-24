@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\Review;
 use app\models\ReviewForm;
 use app\models\ReviewSearch;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -41,8 +42,23 @@ class ReviewController extends Controller
      */
     public function actionIndex(): string
     {
+        $query = Review::find();
+
+        if ($this->request->get('id_author')) {
+            $query->andWhere(['id_author' => $this->request->get('id_author')])->all();
+        }
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'date_create' => SORT_DESC,
+                ]
+            ],
+        ]);
+
         $searchModel = new ReviewSearch();
-        $dataProvider = $searchModel->search($this->request->queryParams);
+//        $dataProvider = $searchModel->search($this->request->queryParams);
 
         return $this->render('index', [
             'searchModel' => $searchModel,

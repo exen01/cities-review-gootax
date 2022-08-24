@@ -13,7 +13,9 @@ use yii\helpers\Markdown;
     <div class="card-body">
         <div class="card-title">
             Posted by <?= Yii::$app->user->isGuest ? Html::encode($model->author->fio) :
-                Html::a(Html::encode($model->author->fio), '#') ?>
+                $this->render('_authorDetails', [
+                    'author' => $model->author,
+                ]) ?>
         </div>
         <?php if ($model->img) {
             echo Html::img("@runtime/uploads/{$model->img}", ['class' => 'card-img-top', 'alt' => 'Card image cap']);
@@ -37,7 +39,7 @@ use yii\helpers\Markdown;
                 </div>
             <?php endif; ?>
             <div class="list-group-item">
-                Created on <?= date('F j, Y', $model->date_create); ?>
+                Created on <?= date('h:i A, F j, Y', $model->date_create); ?>
             </div>
         </nav>
     </div>
