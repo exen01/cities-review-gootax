@@ -2,10 +2,12 @@
 
 namespace app\controllers;
 
+use app\models\City;
 use app\models\SignupForm;
 use app\models\VerifyEmailForm;
 use InvalidArgumentException;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
@@ -19,11 +21,11 @@ class SiteController extends Controller
     /**
      * {@inheritdoc}
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'only' => ['logout'],
                 'rules' => [
                     [
@@ -34,7 +36,7 @@ class SiteController extends Controller
                 ],
             ],
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'logout' => ['post'],
                 ],
@@ -45,7 +47,7 @@ class SiteController extends Controller
     /**
      * {@inheritdoc}
      */
-    public function actions()
+    public function actions(): array
     {
         return [
             'error' => [
@@ -61,11 +63,26 @@ class SiteController extends Controller
     /**
      * Displays homepage.
      *
-     * @return string
+     * @return string|Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response|string
     {
-        return $this->render('index');
+        if (Yii::$app->session->get('is_user_city_defined')) {
+            return $this->redirect(['review/index']);
+        }
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => City::find(),
+            'sort' => [
+                'defaultOrder' => [
+                    'name' => SORT_ASC
+                ]
+            ]
+        ]);
+
+        return $this->render('index', [
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
     /**
@@ -91,7 +108,7 @@ class SiteController extends Controller
      *
      * @return Response|string
      */
-    public function actionLogin()
+    public function actionLogin(): Response|string
     {
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
@@ -113,7 +130,7 @@ class SiteController extends Controller
      *
      * @return Response
      */
-    public function actionLogout()
+    public function actionLogout(): Response
     {
         Yii::$app->user->logout();
 
@@ -125,7 +142,7 @@ class SiteController extends Controller
      *
      * @return Response|string
      */
-    public function actionContact()
+    public function actionContact(): Response|string
     {
         $model = new ContactForm();
         if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
@@ -143,7 +160,7 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionAbout()
+    public function actionAbout(): string
     {
         return $this->render('about');
     }
@@ -169,5 +186,24 @@ class SiteController extends Controller
 
         Yii::$app->session->setFlash('error', 'Sorry, we are unable to verify your account with provided token.');
         return $this->goHome();
+    }
+
+    /**
+     * Sets user city in the session.
+     *
+     * @return Response
+     */
+    public function actionCity(): Response
+    {
+        if ($this->request->isGet) {
+            if ($this->request->get('city')) {
+                Yii::$app->session->set('user_city', $this->request->get('city'));
+                Yii::$app->session->set('is_user_city_defined', true);
+            } else {
+                Yii::$app->session->set('user_city', 'Undefined');
+            }
+        }
+
+        return $this->redirect(['review/index']);
     }
 }

@@ -56,7 +56,7 @@ $config = [
         */
     ],
     'params' => $params,
-    'defaultRoute' => 'review/index',
+    //'defaultRoute' => 'review/index',
 ];
 
 if (YII_ENV_DEV) {

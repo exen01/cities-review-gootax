@@ -2,9 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\City;
 use app\models\Review;
 use app\models\ReviewForm;
 use app\models\ReviewSearch;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -43,6 +45,11 @@ class ReviewController extends Controller
     public function actionIndex(): string
     {
         $query = Review::find();
+        $userCity = Yii::$app->session->get('user_city');
+
+        if ($userCity && $userCity !== 'Undefined') {
+            $query->where(['or', ['id_city' => $this->getCityIdByName($userCity)], ['id_city' => null]]);
+        }
 
         if ($this->request->get('id_author')) {
             $query->andWhere(['id_author' => $this->request->get('id_author')])->all();
@@ -149,5 +156,19 @@ class ReviewController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    /**
+     * Gets city id by name from DB.
+     *
+     * @param string $name city name
+     * @return int city id
+     */
+    protected function getCityIdByName(string $name): int
+    {
+        return City::find()
+            ->select('id')
+            ->where(['name' => $name])
+            ->one()->id;
     }
 }

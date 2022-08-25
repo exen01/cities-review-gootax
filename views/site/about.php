@@ -15,4 +15,6 @@ $this->params['breadcrumbs'][] = $this->title;
     </p>
 
     <code><?= __FILE__ ?></code>
+
+    <?= 'Your city is ' . Yii::$app->session->get('user_city') ?>
 </div>
