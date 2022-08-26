@@ -67,10 +67,6 @@ class SiteController extends Controller
      */
     public function actionIndex(): Response|string
     {
-        if (Yii::$app->session->get('is_user_city_defined')) {
-            return $this->redirect(['review/index']);
-        }
-
         $dataProvider = new ActiveDataProvider([
             'query' => City::find(),
             'sort' => [

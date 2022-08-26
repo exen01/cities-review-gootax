@@ -8,6 +8,7 @@ use app\models\ReviewForm;
 use app\models\ReviewSearch;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -33,7 +34,26 @@ class ReviewController extends Controller
                         'delete' => ['POST'],
                     ],
                 ],
-            ]
+                'access' => [
+                    'class' => AccessControl::class,
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'actions' => ['index'],
+                            'roles' => ['?'],
+                        ],
+                        [
+                            'allow' => true,
+                            'actions' => ['index', 'create', 'update'],
+                            'roles' => ['@'],
+                        ],
+                        [
+                            'allow' => false,
+                            'roles' => ['?']
+                        ],
+                    ],
+                ],
+            ],
         );
     }
 
@@ -47,12 +67,10 @@ class ReviewController extends Controller
         $query = Review::find();
         $userCity = Yii::$app->session->get('user_city');
 
-        if ($userCity && $userCity !== 'Undefined') {
-            $query->where(['or', ['id_city' => $this->getCityIdByName($userCity)], ['id_city' => null]]);
-        }
-
         if ($this->request->get('id_author')) {
             $query->andWhere(['id_author' => $this->request->get('id_author')])->all();
+        } elseif ($userCity && $userCity !== 'Undefined') {
+            $query->where(['or', ['id_city' => $this->getCityIdByName($userCity)], ['id_city' => null]]);
         }
 
         $dataProvider = new ActiveDataProvider([

@@ -41,6 +41,11 @@ use yii\helpers\Markdown;
             <div class="list-group-item">
                 Created on <?= date('h:i A, F j, Y', $model->date_create); ?>
             </div>
+            <?php if ($model->author->id === Yii::$app->user->id): ?>
+                <div class="list-group-item">
+                    <?= Html::a('Edit', ['review/update', 'id' => $model->id]) ?>
+                </div>
+            <?php endif; ?>
         </nav>
     </div>
 </div>
