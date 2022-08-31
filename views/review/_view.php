@@ -43,7 +43,10 @@ use yii\helpers\Markdown;
             </div>
             <?php if ($model->author->id === Yii::$app->user->id): ?>
                 <div class="list-group-item">
-                    <?= Html::a('Edit', ['review/update', 'id' => $model->id]) ?>
+                    <?= Html::a('Edit', ['review/update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+                </div>
+                <div class="list-group-item">
+                    <?= Html::a('Delete', ['review/delete', 'id' => $model->id], ['class' => 'btn btn-danger']) ?>
                 </div>
             <?php endif; ?>
         </nav>

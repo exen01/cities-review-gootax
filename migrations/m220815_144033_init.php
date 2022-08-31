@@ -78,6 +78,9 @@ class m220815_144033_init extends Migration
      */
     public function safeDown()
     {
+        $this->dropForeignKey('FK_review_city', '{{%review}}');
+        $this->dropForeignKey('FK_review_user', '{{%review}}');
+
         $this->dropTable('{{%user}}');
         $this->dropTable('{{%city}}');
         $this->dropTable('{{%review}}');
