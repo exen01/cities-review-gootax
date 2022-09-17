@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\User;
 use app\models\UserSearch;
+use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -80,6 +81,20 @@ class UserController extends Controller
     {
         $model = new User();
 
+        if (Yii::$app->request->isAjax) {
+            if ($model->load($this->request->post()) && $model->save()) {
+                return <<<HTML
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close"
+                                data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <p>User successfully created</p>
+                    </div>
+                    HTML;
+            }
+        }
+
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
@@ -103,6 +118,20 @@ class UserController extends Controller
     public function actionUpdate(int $id): Response|string
     {
         $model = $this->findModel($id);
+
+        if (Yii::$app->request->isAjax) {
+            if ($model->load($this->request->post()) && $model->save()) {
+                return <<<HTML
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close"
+                                data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <p>User successfully updated</p>
+                    </div>
+                    HTML;
+            }
+        }
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);

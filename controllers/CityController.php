@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\City;
 use app\models\CitySearch;
+use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -80,6 +81,20 @@ class CityController extends Controller
     {
         $model = new City();
 
+        if (Yii::$app->request->isAjax) {
+            if ($model->load($this->request->post()) && $model->save()) {
+                return <<<HTML
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close"
+                                data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <p>City successfully created</p>
+                    </div>
+                    HTML;
+            }
+        }
+
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
@@ -103,6 +118,20 @@ class CityController extends Controller
     public function actionUpdate($id): Response|string
     {
         $model = $this->findModel($id);
+
+        if (Yii::$app->request->isAjax) {
+            if ($model->load($this->request->post()) && $model->save()) {
+                return <<<HTML
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close"
+                                data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <p>City successfully updated</p>
+                    </div>
+                    HTML;
+            }
+        }
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);

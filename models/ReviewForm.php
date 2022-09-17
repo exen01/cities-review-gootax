@@ -46,6 +46,11 @@ class ReviewForm extends Model
         ];
     }
 
+    /**
+     * Creates and fill review with passed data.
+     *
+     * @return bool result of save
+     */
     public function saveReview(): bool
     {
         $review = new Review();
@@ -60,11 +65,28 @@ class ReviewForm extends Model
         return $review->save() && $this->uploadImg();
     }
 
-    public function getCityId(): int
+    /**
+     * Updates review with passed data.
+     *
+     * @param Review $review updated review
+     * @return bool result of updating
+     */
+    public function updateReview(Review $review): bool
     {
-        return City::findOne(['name' => $this->city])->id;
+        $review->title = $this->title;
+        $review->text = $this->text;
+        $review->rating = $this->rating;
+        $review->img = $this->img?->name;
+        $review->id_city = $this->city;
+
+        return $review->save() && $this->uploadImg();
     }
 
+    /**
+     * Upload the image to disk.
+     *
+     * @return bool result of uploading
+     */
     public function uploadImg(): bool
     {
         if ($this->validate() && $this->img) {

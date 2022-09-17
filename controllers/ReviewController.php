@@ -111,18 +111,35 @@ class ReviewController extends Controller
      */
     public function actionCreate(): Response|string
     {
-        $model = new ReviewForm();
+        $form = new ReviewForm();
 
-        if ($this->request->isPost) {
-            $model->load($this->request->post());
-            $model->img = UploadedFile::getInstance($model, 'img');
-            if ($model->saveReview()) {
-                return $this->redirect(['review/index']);
+        if (Yii::$app->request->isAjax) {
+            if ($form->load(Yii::$app->request->post()) && $form->validate()) {
+                $form->img = UploadedFile::getInstance($form, 'img');
+                if ($form->saveReview()) {
+                    return <<<HTML
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close"
+                                data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <p>Review successfully created</p>
+                    </div>
+                    HTML;
+                }
             }
         }
 
+//        if ($this->request->isPost) {
+//            $form->load($this->request->post());
+//            $form->img = UploadedFile::getInstance($form, 'img');
+//            if ($form->saveReview()) {
+//                return $this->redirect(['review/index']);
+//            }
+//        }
+
         return $this->render('create', [
-            'model' => $model,
+            'model' => $form,
         ]);
     }
 
@@ -135,14 +152,42 @@ class ReviewController extends Controller
      */
     public function actionUpdate(int $id): Response|string
     {
-        $model = $this->findModel($id);
+        $modelFromDb = $this->findModel($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['review/index']);
+        //fill form model with data from db
+        //TODO: maybe there is a better way to do this
+        $form = new ReviewForm();
+        $form->title = $modelFromDb->title;
+        $form->text = $modelFromDb->text;
+        $form->city = $modelFromDb->id_city;
+        $form->rating = $modelFromDb->rating;
+
+
+        if (Yii::$app->request->isAjax) {
+            if ($form->load(Yii::$app->request->post()) && $form->validate()) {
+                $form->img = UploadedFile::getInstance($form, 'img');
+                if ($form->updateReview($modelFromDb)) {
+                    return <<<HTML
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close"
+                                data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <p>Review successfully updated</p>
+                    </div>
+                    HTML;
+                }
+            }
         }
 
+//        if ($this->request->isPost && $modelFromDb->load($this->request->post()) && $modelFromDb->save()) {
+//            return $this->redirect(['review/index']);
+//        }
+
+        //pass model from db to display id in url
         return $this->render('update', [
-            'model' => $model,
+            'modelFromDb' => $modelFromDb,
+            'model' => $form,
         ]);
     }
 
