@@ -116,7 +116,7 @@ class ReviewController extends Controller
         if (Yii::$app->request->isAjax) {
             if ($form->load(Yii::$app->request->post()) && $form->validate()) {
                 $form->img = UploadedFile::getInstance($form, 'img');
-                if ($form->saveReview()) {
+                if ($form->saveReview(Yii::$app->request->post('ReviewForm')['cityString'])) {
                     return <<<HTML
                     <div class="alert alert-success alert-dismissible" role="alert">
                         <button type="button" class="close"
@@ -166,7 +166,7 @@ class ReviewController extends Controller
         if (Yii::$app->request->isAjax) {
             if ($form->load(Yii::$app->request->post()) && $form->validate()) {
                 $form->img = UploadedFile::getInstance($form, 'img');
-                if ($form->updateReview($modelFromDb)) {
+                if ($form->updateReview($modelFromDb, Yii::$app->request->post('ReviewForm')['cityString'])) {
                     return <<<HTML
                     <div class="alert alert-success alert-dismissible" role="alert">
                         <button type="button" class="close"

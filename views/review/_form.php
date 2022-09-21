@@ -91,6 +91,7 @@ $this->registerJs($js);
             ->all();
 
         echo AutoComplete::widget([
+            'name' => 'ReviewForm[cityString]',
             'options' => [
                 'id' => 'cityAutoComplete',
                 'class' => 'form-control',
